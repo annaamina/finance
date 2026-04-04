@@ -1,0 +1,224 @@
+.add-tx-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(4, 13, 11, 0.72);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  opacity: 0;
+  transition: opacity 0.22s ease;
+}
+
+.add-tx-overlay--visible {
+  opacity: 1;
+}
+
+.add-tx-modal {
+  --modal-surface: #141a19;
+  --modal-border: rgba(255, 255, 255, 0.07);
+  --modal-label: #94a3b8;
+  --modal-muted: #94a3b8;
+  --modal-input-bg: #111315;
+  --modal-input-border: rgba(255, 255, 255, 0.09);
+  --modal-focus-ring: rgba(16, 185, 129, 0.55);
+  --modal-focus-glow: rgba(16, 185, 129, 0.14);
+  --modal-divider: rgba(255, 255, 255, 0.08);
+
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 420px;
+  max-height: min(92vh, 720px);
+  overflow: hidden;
+  border-radius: 14px;
+  border: 1px solid var(--modal-border);
+  background: var(--modal-surface);
+  box-shadow:
+    0 24px 48px rgba(0, 0, 0, 0.45),
+    0 0 0 1px rgba(0, 0, 0, 0.2) inset;
+  color: #fff;
+  transform: scale(0.96) translateY(6px);
+  opacity: 0;
+  transition:
+    transform 0.24s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.22s ease;
+}
+
+.add-tx-overlay--visible .add-tx-modal {
+  transform: scale(1) translateY(0);
+  opacity: 1;
+}
+
+.add-tx-modal__header {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 22px 24px 18px;
+  border-bottom: 1px solid var(--modal-divider);
+}
+
+/* Scroll form only; no visible scrollbar strip (“sidebar”) */
+.add-tx-modal__scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.add-tx-modal__scroll::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+.add-tx-modal__title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.add-tx-modal__close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--modal-muted);
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+}
+
+.add-tx-modal__close:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+}
+
+.add-tx-modal__close:focus-visible {
+  outline: 2px solid #10b981;
+  outline-offset: 2px;
+}
+
+.add-tx-modal--expense .add-tx-modal__close:focus-visible {
+  outline-color: #f43f5e;
+}
+
+.add-tx-modal__body {
+  padding: 22px 24px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Income / Expense toggle */
+.add-tx-type-toggle {
+  display: flex;
+  padding: 4px;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  gap: 4px;
+}
+
+.add-tx-type-toggle__btn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 12px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--modal-muted);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background 0.18s ease,
+    color 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.add-tx-type-toggle__btn:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.35);
+  outline-offset: 2px;
+}
+
+.add-tx-type-toggle__btn--income.add-tx-type-toggle__btn--active {
+  background: #10b981;
+  color: #fff;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.12) inset;
+}
+
+.add-tx-type-toggle__btn--expense.add-tx-type-toggle__btn--active {
+  background: #f43f5e;
+  color: #fff;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.12) inset;
+}
+
+.add-tx-modal__submit {
+  width: 100%;
+  min-height: 50px;
+  margin-top: 4px;
+  border: none;
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: #fff;
+  cursor: pointer;
+  transition:
+    background 0.18s ease,
+    opacity 0.18s ease,
+    transform 0.12s ease;
+}
+
+.add-tx-modal__submit--income {
+  background: #10b981;
+}
+
+.add-tx-modal__submit--income:hover:not(:disabled) {
+  background: #0ea271;
+}
+
+.add-tx-modal__submit--expense {
+  background: #f43f5e;
+}
+
+.add-tx-modal__submit--expense:hover:not(:disabled) {
+  background: #e11d48;
+}
+
+.add-tx-modal__submit:disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.add-tx-modal__submit:active:not(:disabled) {
+  transform: scale(0.99);
+}
+
+.add-tx-modal__submit:focus-visible:not(:disabled) {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
