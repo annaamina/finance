@@ -64,7 +64,7 @@ export function formatShortDate(isoDate) {
   if (!isoDate) return ''
   const [y, m, d] = isoDate.split('-')
   const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
-  return `${months[parseInt(m, 10) - 1]} ${parseInt(d, 10)}`
+  return `${months[parseInt(m, 10) - 1]} ${String(parseInt(d, 10)).padStart(2, '0')}`
 }
 
 // Format "2026-03-01" → "01/03/2026"
