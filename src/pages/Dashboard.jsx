@@ -346,8 +346,8 @@ export default function Dashboard({ theme, onThemeChange }) {
                     tick={{ fill: 'rgb(136,153,150)', fontSize: 11 }}
                     tickLine={false}
                     axisLine={false}
-                    interval="preserveStartEnd"
                     dy={6}
+                    interval={4}
                   />
                   <YAxis
                     tick={{ fill: 'rgb(136,153,150)', fontSize: 11 }}
