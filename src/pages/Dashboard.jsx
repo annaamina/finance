@@ -327,7 +327,7 @@ export default function Dashboard({ theme, onThemeChange }) {
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart
                   data={balanceSeries}
-                  margin={{ top: 8, right: 8, left: 0, bottom: 4 }}
+                  margin={{ top: 8, right: 40, left: 0, bottom: 4 }}
                 >
                   <defs>
                     <linearGradient id={balanceGradientId} x1="0" y1="0" x2="0" y2="1">
