@@ -1,22 +1,16 @@
 import { create } from 'zustand'
+import seedData from '../data/transactions.json'
 
-/**
- * Central place for user-added transactions (e.g. from Add Transaction modal).
- * Dashboard charts stay static; this list powers the Transactions page.
- */
 export const useTransactionStore = create((set) => ({
-  transactions: [],
-  role: 'viewer', // 'viewer' | 'admin'
+  transactions: seedData,  // seeded with mock data
+  role: 'viewer',
 
   setRole: (role) => set({ role }),
 
   addTransaction: (transaction) =>
     set((state) => ({
       transactions: [
-        {
-          id: crypto.randomUUID(),
-          ...transaction,
-        },
+        { id: crypto.randomUUID(), ...transaction },
         ...state.transactions,
       ],
     })),

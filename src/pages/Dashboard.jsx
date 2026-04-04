@@ -2,6 +2,12 @@ import { useId, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTransactionStore } from '../store/useTransactionStore'
 import {
+  buildBalanceSeries,
+  calculateCategoryTotals,
+  getSummary,
+  formatINR,
+} from '../utils/transactionHelpers'
+import {
   Area,
   AreaChart,
   CartesianGrid,
@@ -15,47 +21,6 @@ import {
 } from 'recharts'
 import { AddTransactionModal } from '../components/AddTransactionModal'
 import '../App.css'
-
-const BALANCE_TICKS = [0, 4, 8, 12, 16, 20, 24, 28]
-const BALANCE_LABELS = [
-  '7 Mar',
-  '11 Mar',
-  '15 Mar',
-  '19 Mar',
-  '23 Mar',
-  '27 Mar',
-  '31 Mar',
-  '4 Apr',
-]
-
-function buildBalanceSeries() {
-  const n = 29
-  return Array.from({ length: n }, (_, i) => {
-    let v
-    if (i <= 18) {
-      v = 120 + (i % 4) * 35
-    } else if (i < 24) {
-      v = 180 + (i - 18) * 620
-    } else if (i === 24) {
-      v = 4280
-    } else if (i === 25) {
-      v = 3050
-    } else if (i === 26) {
-      v = 2320
-    } else {
-      v = 2120 + (i - 27) * 32
-    }
-    return { i, v }
-  })
-}
-
-const SPENDING = [
-  { name: 'Housing', value: 3000, pct: 55, color: '#4c51bf' },
-  { name: 'Savings', value: 1000, pct: 18, color: '#48bb78' },
-  { name: 'Food & Dining', value: 453, pct: 8, color: '#ed8936' },
-  { name: 'Shopping', value: 620, pct: 12, color: '#ed64a1' },
-  { name: 'Utilities', value: 380, pct: 7, color: '#38b2ac' },
-]
 
 function IconWallet() {
   return (
@@ -223,13 +188,11 @@ function IconChevron() {
 
 function BalanceTooltip({ active, payload }) {
   if (!active || !payload?.length) return null
-  const { v } = payload[0].payload
+  const { balance } = payload[0].payload
   return (
     <div className="chart-tooltip">
       <span className="chart-tooltip__label">Balance</span>
-      <span className="chart-tooltip__value">
-        ₹{v.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
-      </span>
+      <span className="chart-tooltip__value">{formatINR(balance)}</span>
     </div>
   )
 }
@@ -238,15 +201,14 @@ export default function Dashboard({ theme, onThemeChange }) {
   const navigate = useNavigate()
   const role = useTransactionStore((state) => state.role)
   const setRole = useTransactionStore((state) => state.setRole)
+  const transactions = useTransactionStore((state) => state.transactions)
   const [addTransactionOpen, setAddTransactionOpen] = useState(false)
-  const balanceData = useMemo(() => buildBalanceSeries(), [])
+ 
   const balanceGradientId = `balanceFill-${useId().replace(/:/g, '')}`
-
-  const tickFormatter = (idx) => {
-    const pos = BALANCE_TICKS.indexOf(idx)
-    return pos >= 0 ? BALANCE_LABELS[pos] : ''
-  }
-
+  const balanceSeries = useMemo(() => buildBalanceSeries(transactions), [transactions])
+  const spending = useMemo(() => calculateCategoryTotals(transactions), [transactions])
+  const summary = useMemo(() => getSummary(transactions), [transactions])
+  
   return (
     <>
       <div className="dashboard">
@@ -333,7 +295,7 @@ export default function Dashboard({ theme, onThemeChange }) {
                 <IconWallet />
               </div>
             </div>
-            <p className="metric-card__value">₹5,285.52</p>
+            <p className="metric-card__value">{formatINR(summary.balance)}</p>
           </article>
           <article className="metric-card">
             <div className="metric-card__top">
@@ -342,7 +304,7 @@ export default function Dashboard({ theme, onThemeChange }) {
                 <IconArrowUp />
               </div>
             </div>
-            <p className="metric-card__value">₹5,200.00</p>
+            <p className="metric-card__value">{formatINR(summary.totalIncome)}</p>
           </article>
           <article className="metric-card">
             <div className="metric-card__top">
@@ -351,7 +313,7 @@ export default function Dashboard({ theme, onThemeChange }) {
                 <IconArrowDown />
               </div>
             </div>
-            <p className="metric-card__value">₹2,379.99</p>
+            <p className="metric-card__value">{formatINR(summary.totalExpenses)}</p>
           </article>
         </section>
 
@@ -364,13 +326,13 @@ export default function Dashboard({ theme, onThemeChange }) {
             <div className="chart-card__plot chart-card__plot--trend">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart
-                  data={balanceData}
+                  data={balanceSeries}
                   margin={{ top: 8, right: 8, left: 0, bottom: 4 }}
                 >
                   <defs>
                     <linearGradient id={balanceGradientId} x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#00cf8b" stopOpacity={0.28} />
-                      <stop offset="100%" stopColor="#00cf8b" stopOpacity={0} />
+                    <stop offset="0%" stopColor="#00cf8b" stopOpacity={0.28} />
+                    <stop offset="100%" stopColor="#00cf8b" stopOpacity={0} />
                     </linearGradient>
                   </defs>
                   <CartesianGrid
@@ -380,29 +342,24 @@ export default function Dashboard({ theme, onThemeChange }) {
                     vertical={false}
                   />
                   <XAxis
-                    dataKey="i"
-                    type="number"
-                    domain={[0, 28]}
-                    ticks={BALANCE_TICKS}
-                    tickFormatter={tickFormatter}
-                    tick={{ fill: 'rgb(136, 153, 150)', fontSize: 11 }}
+                    dataKey="label"
+                    tick={{ fill: 'rgb(136,153,150)', fontSize: 11 }}
                     tickLine={false}
                     axisLine={false}
+                    interval="preserveStartEnd"
                     dy={6}
                   />
                   <YAxis
-                    domain={[-1500, 4500]}
-                    ticks={[4500, 3000, 1500, 0, -1500]}
-                    tick={{ fill: 'rgb(136, 153, 150)', fontSize: 11 }}
+                    tick={{ fill: 'rgb(136,153,150)', fontSize: 11 }}
                     tickLine={false}
                     axisLine={false}
                     tickFormatter={(n) => `₹${n.toLocaleString('en-IN')}`}
-                    width={52}
+                    width={64}
                   />
                   <Tooltip content={<BalanceTooltip />} cursor={{ stroke: 'rgba(0,207,139,0.35)' }} />
                   <Area
                     type="monotone"
-                    dataKey="v"
+                    dataKey="balance"
                     stroke="#00cf8b"
                     strokeWidth={2}
                     fill={`url(#${balanceGradientId})`}
@@ -423,9 +380,9 @@ export default function Dashboard({ theme, onThemeChange }) {
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
-                      data={SPENDING}
-                      dataKey="value"
-                      nameKey="name"
+                      data={spending}
+                      dataKey="total"
+                      nameKey="category"
                       cx="50%"
                       cy="50%"
                       innerRadius="60%"
@@ -433,26 +390,26 @@ export default function Dashboard({ theme, onThemeChange }) {
                       paddingAngle={2}
                       stroke="none"
                     >
-                      {SPENDING.map((entry) => (
-                        <Cell key={entry.name} fill={entry.color} />
+                      {spending.map((entry) => (
+                        <Cell key={entry.category} fill={entry.color} />
                       ))}
                     </Pie>
                   </PieChart>
                 </ResponsiveContainer>
               </div>
               <div className="category-scroll" role="list" aria-label="Category breakdown">
-                {SPENDING.map((row) => (
-                  <div key={row.name} className="category-row" role="listitem">
+                {spending.map((row) => (
+                  <div key={row.category} className="category-row" role="listitem">
                     <span className="category-row__left">
                       <span
                         className="category-row__dot"
                         style={{ backgroundColor: row.color }}
                       />
-                      <span className="category-row__name">{row.name}</span>
+                      <span className="category-row__name">{row.category}</span>
                     </span>
                     <span className="category-row__pct">{row.pct}%</span>
                     <span className="category-row__amt">
-                      ${row.value.toLocaleString('en-US')}
+                      {formatINR(row.total)}
                     </span>
                   </div>
                 ))}
