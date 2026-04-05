@@ -645,3 +645,36 @@
   outline: none !important;
   border: none !important;
 }
+
+.streak-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: rgba(251, 146, 60, 0.08);
+  border: 1px solid rgba(251, 146, 60, 0.25);
+  border-radius: 14px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.streak-card__icon {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.streak-card__text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.streak-card__title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fb923c;
+}
+
+.streak-card__sub {
+  font-size: 0.8rem;
+  color: rgb(136, 153, 150);
+}

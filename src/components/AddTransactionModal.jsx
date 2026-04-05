@@ -116,7 +116,7 @@ export function AddTransactionModal({ isOpen, onClose,editTransaction=null }) {
   const [date, setDate] = useState(todayISODate)
   const [category, setCategory] = useState('')
   const [account, setAccount] = useState('')
-
+  const [showConfirm, setShowConfirm] = useState(false)
   const [errors, setErrors] = useState({})
   const [touched, setTouched] = useState({
     name: false,
@@ -297,53 +297,100 @@ export function AddTransactionModal({ isOpen, onClose,editTransaction=null }) {
     setErrors((prev) => ({ ...prev, account: validateAccount(value) }))
   }
 
-  function handleSubmit(e) {
+    function handleSubmit(e) {
     e.preventDefault()
     setTouched({
-      name: true,
-      amount: true,
-      date: true,
-      category: true,
-      account: true,
-    })
-    const nextErrors = {
-      name: validateName(name),
-      amount: validateAmount(amount),
-      date: validateDate(date),
-      category: validateCategory(category),
-      account: validateAccount(account),
-    }
-    setErrors(nextErrors)
-    if (Object.values(nextErrors).some(Boolean)) return
+    name: true,
+    amount: true,
+    date: true,
+    category: true,
+    account: true,
+  })
+  const nextErrors = {
+    name: validateName(name),
+    amount: validateAmount(amount),
+    date: validateDate(date),
+    category: validateCategory(category),
+    account: validateAccount(account),
+  }
+  setErrors(nextErrors)
+  if (Object.values(nextErrors).some(Boolean)) return
 
     const parsedAmount = parseAmount(amount)
     if (parsedAmount == null) return
-
-    const payload = {
+  // For edit mode, show confirm popup instead of saving immediately
+      if (isEditMode) {
+    setShowConfirm(true)
+  } else {
+    addTransaction({
       type: transactionType,
       name: name.trim(),
       amount: parsedAmount,
       date,
       category,
       account,
-    }
+    })
+    onClose()
+  }
+}
 
-    if (isEditMode) {
-        updateTransaction({ id: editTransaction.id, ...payload })
-      } else {
-        addTransaction(payload)
-      }
-      onClose()
-        }
+function handleConfirmSave() {
+  const parsedAmount = parseAmount(amount)
+  if (parsedAmount == null) return
+  updateTransaction({
+    id: editTransaction.id,
+    type: transactionType,
+    name: name.trim(),
+    amount: parsedAmount,
+    date,
+    category,
+    account,
+  })
+  setShowConfirm(false)
+  onClose()
+}
 
-  if (!shouldRender) return null
+if (!shouldRender && !showConfirm) return null
+
+if (!shouldRender && !showConfirm) return null
+
+  if (showConfirm) {
+    return createPortal(
+      <div
+        style={{
+          position: 'fixed',
+          inset: 0,
+          zIndex: 99999,
+          backgroundColor: 'rgba(0,0,0,0.7)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+        onMouseDown={(e) => { if (e.target === e.currentTarget) setShowConfirm(false) }}
+      >
+        <div className="delete-modal">
+          <h2 className="delete-modal__title">Save Changes?</h2>
+          <p className="delete-modal__desc">
+            Are you sure you want to save these changes to <strong>"{editTransaction?.name}"</strong>?
+          </p>
+          <div className="delete-modal__actions">
+            <button className="delete-modal__btn delete-modal__btn--cancel" onClick={() => setShowConfirm(false)}>
+              Cancel
+            </button>
+            <button className="delete-modal__btn delete-modal__btn--confirm" onClick={handleConfirmSave}>
+              Confirm
+            </button>
+          </div>
+        </div>
+      </div>,
+      document.body,
+    )
+  }
 
   const modalClass =
     transactionType === 'expense'
       ? 'add-tx-modal add-tx-modal--expense'
       : 'add-tx-modal add-tx-modal--income'
-
-  const submitLabel = transactionType === 'income' ? 'Add Income' : 'Add Expense'
 
   return createPortal(
     <div
@@ -436,14 +483,7 @@ export function AddTransactionModal({ isOpen, onClose,editTransaction=null }) {
               type="date"
               max={todayISODate()}
               inputRef={dateInputRef}
-              rightAdornment={
-  <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden>
-      <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-    </svg>
-    <IconCalendar />
-  </span>
-}
+              rightAdornment={<IconCalendar />}
               onRightAdornmentClick={() => dateInputRef.current?.showPicker()}
             />
 
@@ -486,19 +526,19 @@ export function AddTransactionModal({ isOpen, onClose,editTransaction=null }) {
                   Save Changes
                 </button>
               </div>
-              ) : (
-                <button
-                  type="submit"
-                  className={`add-tx-modal__submit ${
-                    transactionType === 'income'
-                      ? 'add-tx-modal__submit--income'
-                      : 'add-tx-modal__submit--expense'
-                  }`}
-                  disabled={!formValid}
-                >
-                  {transactionType === 'income' ? 'Add Income' : 'Add Expense'}
-                </button>
-)}
+            ) : (
+              <button
+                type="submit"
+                className={`add-tx-modal__submit ${
+                  transactionType === 'income'
+                    ? 'add-tx-modal__submit--income'
+                    : 'add-tx-modal__submit--expense'
+                }`}
+                disabled={!formValid}
+              >
+                {transactionType === 'income' ? 'Add Income' : 'Add Expense'}
+              </button>
+            )}
           </form>
         </div>
       </div>

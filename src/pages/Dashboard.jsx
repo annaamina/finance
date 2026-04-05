@@ -22,6 +22,42 @@ import {
 import { AddTransactionModal } from '../components/AddTransactionModal'
 import '../App.css'
 
+function calculateStreak(transactions) {
+  if (!transactions.length) return { streak: 0, activeToday: false }
+
+  // Get unique dates from transactions
+  const uniqueDates = [...new Set(
+    transactions.map((t) => t.date.slice(0, 10))
+  )].sort((a, b) => b.localeCompare(a)) // descending
+
+  const today = new Date().toISOString().slice(0, 10)
+  const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10)
+
+  // Streak only counts if user was active today or yesterday
+  if (uniqueDates[0] !== today && uniqueDates[0] !== yesterday) {
+    return { streak: 0, activeToday: false }
+  }
+
+  const activeToday = uniqueDates[0] === today
+
+  let streak = 0
+  let expected = activeToday ? today : yesterday
+
+  for (const date of uniqueDates) {
+    if (date === expected) {
+      streak++
+      // subtract one day
+      const d = new Date(expected)
+      d.setDate(d.getDate() - 1)
+      expected = d.toISOString().slice(0, 10)
+    } else {
+      break
+    }
+  }
+
+  return { streak, activeToday }
+}
+
 function IconWallet() {
   return (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden>
@@ -208,7 +244,8 @@ export default function Dashboard({ theme, onThemeChange }) {
   const balanceSeries = useMemo(() => buildBalanceSeries(transactions), [transactions])
   const spending = useMemo(() => calculateCategoryTotals(transactions), [transactions])
   const summary = useMemo(() => getSummary(transactions), [transactions])
-  
+  const { streak, activeToday } = useMemo(() => calculateStreak(transactions), [transactions])
+
   return (
     <>
       <div className="dashboard">
@@ -286,6 +323,19 @@ export default function Dashboard({ theme, onThemeChange }) {
             </p>
           </div>
         )}
+        {streak > 0 && (
+            <div className="streak-card">
+              <span className="streak-card__icon">🔥</span>
+              <div className="streak-card__text">
+                <span className="streak-card__title">{streak} day{streak !== 1 ? 's' : ''} streak</span>
+                <span className="streak-card__sub">
+                  {activeToday
+                    ? 'You extended your streak today — keep it up!'
+                    : 'Add a transaction today to continue your streak!'}
+                </span>
+              </div>
+            </div>
+          )}
 
         <section className="metrics-row" aria-label="Key metrics">
           <article className="metric-card">
