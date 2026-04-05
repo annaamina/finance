@@ -18,12 +18,14 @@ const FOCUSABLE_SELECTOR =
   'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
 
 const CATEGORY_OPTIONS = [
-  { value: 'Housing', label: 'Housing' },
-  { value: 'Food', label: 'Food' },
-  { value: 'Shopping', label: 'Shopping' },
-  { value: 'Entertainment', label: 'Entertainment' },
-  { value: 'Utilities', label: 'Utilities' },
-  { value: 'Savings', label: 'Savings' },
+  { value: 'Housing',        label: 'Housing' },
+  { value: 'Food & Dining',  label: 'Food & Dining' },
+  { value: 'Shopping',       label: 'Shopping' },
+  { value: 'Entertainment',  label: 'Entertainment' },
+  { value: 'Utilities',      label: 'Utilities' },
+  { value: 'Transportation', label: 'Transportation' },
+  { value: 'Healthcare',     label: 'Healthcare' },
+  { value: 'Income',         label: 'Income' },
 ]
 
 const ACCOUNT_OPTIONS = [
@@ -94,8 +96,10 @@ function getFocusableElements(container) {
   return Array.from(container.querySelectorAll(FOCUSABLE_SELECTOR))
 }
 
-export function AddTransactionModal({ isOpen, onClose }) {
+export function AddTransactionModal({ isOpen, onClose,editTransaction=null }) {
   const addTransaction = useTransactionStore((state) => state.addTransaction)
+  const updateTransaction = useTransactionStore((state) => state.updateTransaction)
+  const isEditMode = !!editTransaction
   const baseId = useId()
   const titleId = `${baseId}-title`
   const panelRef = useRef(null)
@@ -144,27 +148,30 @@ export function AddTransactionModal({ isOpen, onClose }) {
   }, [shouldRender])
 
   useEffect(() => {
-    if (isOpen) {
-      returnFocusRef.current = document.activeElement
+  if (isOpen) {
+    returnFocusRef.current = document.activeElement
+    if (isEditMode) {
+      setTransactionType(editTransaction.type)
+      setName(editTransaction.name)
+      setAmount(String(editTransaction.amount))
+      setDate(editTransaction.date)
+      setCategory(editTransaction.category)
+      setAccount(editTransaction.account)
+    } else {
       setTransactionType('income')
       setName('')
       setAmount('')
       setDate(todayISODate())
       setCategory('')
       setAccount('')
-      setErrors({})
-      setTouched({
-        name: false,
-        amount: false,
-        date: false,
-        category: false,
-        account: false,
-      })
-    } else if (returnFocusRef.current) {
-      returnFocusRef.current.focus?.()
-      returnFocusRef.current = null
     }
-  }, [isOpen])
+    setErrors({})
+    setTouched({ name: false, amount: false, date: false, category: false, account: false })
+  } else if (returnFocusRef.current) {
+    returnFocusRef.current.focus?.()
+    returnFocusRef.current = null
+  }
+}, [isOpen])
 
   useEffect(() => {
     if (!shouldRender || !animateIn) return
@@ -318,9 +325,13 @@ export function AddTransactionModal({ isOpen, onClose }) {
       account,
     }
 
-    addTransaction(payload)
-    onClose()
-  }
+    if (isEditMode) {
+        updateTransaction({ id: editTransaction.id, ...payload })
+      } else {
+        addTransaction(payload)
+      }
+      onClose()
+        }
 
   if (!shouldRender) return null
 
@@ -348,7 +359,7 @@ export function AddTransactionModal({ isOpen, onClose }) {
       >
         <header className="add-tx-modal__header">
           <h2 className="add-tx-modal__title" id={titleId}>
-            New Transaction
+            {isEditMode ? 'Edit Transaction' : 'New Transaction'}
           </h2>
           <button
             type="button"
@@ -445,17 +456,36 @@ export function AddTransactionModal({ isOpen, onClose }) {
               placeholderLabel="Select account"
             />
 
-            <button
-              type="submit"
-              className={`add-tx-modal__submit ${
-                transactionType === 'income'
-                  ? 'add-tx-modal__submit--income'
-                  : 'add-tx-modal__submit--expense'
-              }`}
-              disabled={!formValid}
-            >
-              {submitLabel}
-            </button>
+            {isEditMode ? (
+              <div className="add-tx-modal__edit-actions">
+                <button type="button" className="add-tx-modal__cancel" onClick={onClose}>
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className={`add-tx-modal__submit ${
+                    transactionType === 'income'
+                      ? 'add-tx-modal__submit--income'
+                      : 'add-tx-modal__submit--expense'
+                  }`}
+                  disabled={!formValid}
+                >
+                  Save Changes
+                </button>
+              </div>
+              ) : (
+                <button
+                  type="submit"
+                  className={`add-tx-modal__submit ${
+                    transactionType === 'income'
+                      ? 'add-tx-modal__submit--income'
+                      : 'add-tx-modal__submit--expense'
+                  }`}
+                  disabled={!formValid}
+                >
+                  {transactionType === 'income' ? 'Add Income' : 'Add Expense'}
+                </button>
+)}
           </form>
         </div>
       </div>

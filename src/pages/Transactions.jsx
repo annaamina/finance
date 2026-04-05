@@ -116,8 +116,11 @@ export default function Transactions() {
   const [typeFilter, setTypeFilter]    = useState('all')       // 'all' | 'income' | 'expense'
   const [categoryFilter, setCategoryFilter] = useState('all') // 'all' | category string
   const [filterOpen, setFilterOpen]    = useState(false)
+  const [tempType, setTempType]             = useState('all')
+  const [tempCategory, setTempCategory]     = useState('all')
   const [searchOpen, setSearchOpen]    = useState(false)
   const [addOpen, setAddOpen]           = useState(false)  
+  const [editTarget, setEditTarget] = useState(null)
   const searchInputRef = useRef(null)
 
   // Derive unique categories dynamically from data
@@ -155,13 +158,15 @@ export default function Transactions() {
   const hasActiveFilters =
     typeFilter !== 'all' || categoryFilter !== 'all' || searchQuery !== ''
 
-  function clearAll() {
-    setSearchQuery('')
-    setTypeFilter('all')
-    setCategoryFilter('all')
-    setFilterOpen(false)
-    setSearchOpen(false)
-  }
+ function clearAll() {
+  setSearchQuery('')
+  setTypeFilter('all')
+  setCategoryFilter('all')
+  setTempType('all')
+  setTempCategory('all')
+  setFilterOpen(false)
+  setSearchOpen(false)
+} 
 
   function toggleSearch() {
     setSearchOpen((v) => {
@@ -196,7 +201,11 @@ export default function Transactions() {
           <div className="filter-wrap">
             <button
               className={`toolbar-btn ${filterOpen ? 'toolbar-btn--active' : ''} ${typeFilter !== 'all' || categoryFilter !== 'all' ? 'toolbar-btn--dot' : ''}`}
-              onClick={() => setFilterOpen((v) => !v)}
+              onClick={() => {
+                setTempType(typeFilter)
+                setTempCategory(categoryFilter)
+                setFilterOpen((v) => !v)
+              }}
             >
               <IconFilter />
               <span>Filter</span>
@@ -204,52 +213,78 @@ export default function Transactions() {
             </button>
 
             {filterOpen && (
-              <div className="filter-dropdown">
-                <p className="filter-dropdown__heading">FILTERS</p>
+  <div className="filter-dropdown">
+    <p className="filter-dropdown__heading">FILTERS</p>
 
-                {/* Type filter */}
-                <div className="filter-section">
-                  <p className="filter-section__label">Type</p>
-                  <div className="filter-type-btns">
-                    {['all', 'income', 'expense'].map((t) => (
-                      <button
-                        key={t}
-                        className={`filter-type-btn ${typeFilter === t ? 'filter-type-btn--active' : ''}`}
-                        onClick={() => setTypeFilter(t)}
-                      >
-                        {t.charAt(0).toUpperCase() + t.slice(1)}
-                      </button>
-                    ))}
-                  </div>
-                </div>
+    {/* Type filter */}
+    <div className="filter-section">
+      <p className="filter-section__label">Type</p>
+      <div className="filter-type-btns">
+        {['all', 'income', 'expense'].map((t) => (
+          <button
+            key={t}
+            className={`filter-type-btn ${tempType === t ? 'filter-type-btn--active' : ''}`}
+            onClick={() => setTempType(t)}
+          >
+            {t.charAt(0).toUpperCase() + t.slice(1)}
+          </button>
+        ))}
+      </div>
+    </div>
 
-                {/* Category filter */}
-                <div className="filter-section">
-                  <p className="filter-section__label">Category</p>
-                  <div className="filter-category-list">
-                    <button
-                      className={`filter-category-item ${categoryFilter === 'all' ? 'filter-category-item--active' : ''}`}
-                      onClick={() => setCategoryFilter('all')}
-                    >
-                      All categories
-                    </button>
-                    {categories.map((cat) => (
-                      <button
-                        key={cat}
-                        className={`filter-category-item ${categoryFilter === cat ? 'filter-category-item--active' : ''}`}
-                        onClick={() => setCategoryFilter(cat)}
-                      >
-                        <span
-                          className="filter-category-dot"
-                          style={{ backgroundColor: CATEGORY_COLORS[cat] || '#718096' }}
-                        />
-                        {cat}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
+    {/* Category filter */}
+    <div className="filter-section">
+      <p className="filter-section__label">Category</p>
+      <div className="filter-category-list">
+        <button
+          className={`filter-category-item ${tempCategory === 'all' ? 'filter-category-item--active' : ''}`}
+          onClick={() => setTempCategory('all')}
+        >
+          All categories
+        </button>
+        {categories.map((cat) => (
+          <button
+            key={cat}
+            className={`filter-category-item ${tempCategory === cat ? 'filter-category-item--active' : ''}`}
+            onClick={() => setTempCategory(cat)}
+          >
+            <span
+              className="filter-category-dot"
+              style={{ backgroundColor: CATEGORY_COLORS[cat] || '#718096' }}
+            />
+            {cat}
+          </button>
+        ))}
+      </div>
+    </div>
+
+    {/* Apply + Clear buttons */}
+    <div className="filter-dropdown__actions">
+      <button
+        className="filter-action-btn filter-action-btn--clear"
+        onClick={() => {
+          setTempType('all')
+          setTempCategory('all')
+          setTypeFilter('all')
+          setCategoryFilter('all')
+          setFilterOpen(false)
+        }}
+      >
+        Clear
+      </button>
+      <button
+        className="filter-action-btn filter-action-btn--apply"
+        onClick={() => {
+          setTypeFilter(tempType)
+          setCategoryFilter(tempCategory)
+          setFilterOpen(false)
+        }}
+      >
+        Apply
+      </button>
+    </div>
+  </div>
+)}
           </div>
 
           {/* Add button — admin only */}
@@ -346,7 +381,10 @@ export default function Transactions() {
                     <td className="transactions-table__actions">
                       {hoveredId === row.id && (
                         <>
-                          <button className="tx-action-btn tx-action-btn--edit" title="Edit">
+                          <button className="tx-action-btn tx-action-btn--edit" 
+                          title="Edit"
+                          onClick={() => setEditTarget(row)}
+                          >
                             <IconEdit />
                           </button>
                           <button
@@ -370,6 +408,12 @@ export default function Transactions() {
       <AddTransactionModal
         isOpen={addOpen}
         onClose={() => setAddOpen(false)}
+      />
+
+      <AddTransactionModal
+        isOpen={!!editTarget}
+        onClose={() => setEditTarget(null)}
+        editTransaction={editTarget}
       />
       <DeleteConfirmModal
         isOpen={!!deleteTarget}

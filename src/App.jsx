@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import Dashboard from './pages/Dashboard'
 import Transactions from './pages/Transactions'
+import Insights from './pages/Insights'
 import './App.css'
 
 export default function App() {
@@ -13,6 +14,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Dashboard theme={theme} onThemeChange={setTheme} />} />
           <Route path="/transactions" element={<Transactions />} />
+          <Route path="/insights" element={<Insights />} />
         </Routes>
       </div>
     </BrowserRouter>

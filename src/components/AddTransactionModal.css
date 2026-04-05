@@ -222,3 +222,39 @@
   outline: 2px solid #fff;
   outline-offset: 2px;
 }
+
+.add-tx-modal__edit-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.add-tx-modal__cancel {
+  flex: 1;
+  min-height: 50px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #94a3b8;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.add-tx-modal__cancel:hover {
+  background: rgba(255, 255, 255, 0.09);
+  color: #fff;
+}
+
+.add-tx-modal__submit--save {
+  flex: 2;
+  background: #10b981;
+}
+
+.add-tx-modal__submit--save:hover:not(:disabled) {
+  background: #0ea271;
+}
+
+

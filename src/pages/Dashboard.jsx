@@ -327,7 +327,7 @@ export default function Dashboard({ theme, onThemeChange }) {
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart
                   data={balanceSeries}
-                  margin={{ top: 8, right: 40, left: 0, bottom: 4 }}
+                  margin={{ top: 8, right: 40, left: 0, bottom: 12 }}
                 >
                   <defs>
                     <linearGradient id={balanceGradientId} x1="0" y1="0" x2="0" y2="1">
@@ -341,14 +341,18 @@ export default function Dashboard({ theme, onThemeChange }) {
                     horizontal
                     vertical={false}
                   />
+                  
                   <XAxis
                     dataKey="label"
-                    tick={{ fill: 'rgb(136,153,150)', fontSize: 11 }}
+                    tick={{ fill: 'rgb(136,153,150)', fontSize: 10 }}
                     tickLine={false}
                     axisLine={false}
                     dy={6}
-                    interval={4}
+                    interval="preserveStartEnd"
+                    minTickGap={55}
+                    padding={{ left: 8, right: 16 }}
                   />
+
                   <YAxis
                     tick={{ fill: 'rgb(136,153,150)', fontSize: 11 }}
                     tickLine={false}
@@ -435,7 +439,7 @@ export default function Dashboard({ theme, onThemeChange }) {
               <IconChevron />
             </span>
           </button>
-          <button type="button" className="link-card">
+          <button type="button" className="link-card" onClick={() => navigate('/insights')}>
             <span className="link-card__icon link-card__icon--insights">
               <IconSparkles />
             </span>

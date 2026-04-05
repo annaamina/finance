@@ -1,0 +1,89 @@
+/* ── Insights page layout ───────────────────────────────────────────────────── */
+
+.insights-page {
+  padding-bottom: 2.5rem;
+}
+
+/* Summary cards row — same as dashboard metrics-row but slightly tighter */
+.ins-metrics {
+  margin-top: 1.5rem;
+}
+
+/* Subtitle under card value */
+.ins-card__sub {
+  margin: 0;
+  margin-top: 0.25rem;
+  font-size: 0.72rem;
+  color: rgb(136, 153, 150);
+  letter-spacing: 0.01em;
+}
+
+/* Top category value — slightly smaller to fit longer names */
+.ins-top-cat {
+  font-size: clamp(1rem, 3.5vw, 1.5rem) !important;
+}
+
+/* ── Shared chart card ───────────────────────────────────────────────────────── */
+
+.ins-chart-card {
+  background: var(--card-bg, #111c18);
+  border: 1px solid var(--card-border, rgba(255, 255, 255, 0.07));
+  border-radius: 16px;
+  padding: 1.5rem 1.75rem 1.75rem;
+  margin-top: 1.25rem;
+}
+
+.ins-chart-icon {
+  margin-right: 0.4rem;
+  font-style: normal;
+}
+
+/* ── Chart plot area ─────────────────────────────────────────────────────────── */
+
+.ins-chart-plot {
+  height: 260px;
+  margin-top: 1.25rem;
+}
+
+/* ── Tooltip ─────────────────────────────────────────────────────────────────── */
+
+.ins-tooltip {
+  background: #1a2e25;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 0.55rem 0.9rem;
+  font-size: 0.8rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  min-width: 130px;
+}
+
+.ins-tooltip__label {
+  margin: 0 0 0.3rem;
+  color: rgb(136, 153, 150);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.ins-tooltip__row {
+  margin: 0.18rem 0 0;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+/* ── Light theme overrides ───────────────────────────────────────────────────── */
+
+.app--light .ins-chart-card {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.07);
+}
+
+.app--light .ins-tooltip {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+
+.app--light .ins-tooltip__label {
+  color: #64748b;
+}

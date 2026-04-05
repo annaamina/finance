@@ -515,3 +515,42 @@
   border-radius: 50%;
   flex-shrink: 0;
 }
+
+.filter-dropdown__actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-card);
+}
+
+.filter-action-btn {
+  flex: 1;
+  padding: 8px 12px;
+  border-radius: 7px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.filter-action-btn--clear {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-card);
+  color: var(--text-muted);
+}
+
+.filter-action-btn--clear:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+}
+
+.filter-action-btn--apply {
+  background: var(--accent-hex, #00cf8b);
+  border: none;
+  color: #0a1a14;
+}
+
+.filter-action-btn--apply:hover {
+  opacity: 0.9;
+}

@@ -2,7 +2,7 @@ import { create } from 'zustand'
 import seedData from '../data/transactions.json'
 
 export const useTransactionStore = create((set) => ({
-  transactions: seedData,  // seeded with mock data
+  transactions: seedData,
   role: 'viewer',
 
   setRole: (role) => set({ role }),
@@ -18,5 +18,12 @@ export const useTransactionStore = create((set) => ({
   deleteTransaction: (id) =>
     set((state) => ({
       transactions: state.transactions.filter((t) => t.id !== id),
+    })),
+
+  updateTransaction: (updated) =>
+    set((state) => ({
+      transactions: state.transactions.map((t) =>
+        t.id === updated.id ? { ...t, ...updated } : t
+      ),
     })),
 }))

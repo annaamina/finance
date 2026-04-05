@@ -388,6 +388,8 @@
   width: 100%;
   margin-top: 8px;
   margin-left: -6px;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .chart-tooltip {
@@ -635,4 +637,11 @@
   .metric-card__value {
     font-size: 24px;
   }
+}
+
+.recharts-wrapper,
+.recharts-wrapper *,
+.recharts-surface {
+  outline: none !important;
+  border: none !important;
 }
