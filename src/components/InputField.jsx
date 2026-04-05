@@ -11,6 +11,7 @@ export function InputField({
   placeholder,
   leftAdornment,
   rightAdornment,
+  onRightAdornmentClick,
   autoComplete,
   inputMode,
   className = '',
@@ -49,8 +50,14 @@ export function InputField({
           aria-describedby={error ? `${id}-error` : undefined}
         />
         {rightAdornment ? (
-          <span className="form-field__adorn form-field__adorn--right">{rightAdornment}</span>
-        ) : null}
+            <span
+              className="form-field__adorn form-field__adorn--right"
+              onClick={onRightAdornmentClick}
+              style={onRightAdornmentClick ? { cursor: 'pointer' } : undefined}
+            >
+              {rightAdornment}
+            </span>
+          ) : null}
       </div>
       {error ? (
         <p className="form-field__error" id={`${id}-error`} role="alert">

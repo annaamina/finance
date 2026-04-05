@@ -308,6 +308,7 @@ export default function Transactions() {
             placeholder="Search by name, category, account..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
+            onFocus={() => setFilterOpen(false)}
           />
           {searchQuery && (
             <button className="search-bar-clear" onClick={() => setSearchQuery('')}>✕</button>

@@ -104,6 +104,7 @@ export function AddTransactionModal({ isOpen, onClose,editTransaction=null }) {
   const titleId = `${baseId}-title`
   const panelRef = useRef(null)
   const nameInputRef = useRef(null)
+  const dateInputRef = useRef(null)
   const returnFocusRef = useRef(null)
 
   const [shouldRender, setShouldRender] = useState(false)
@@ -253,12 +254,14 @@ export function AddTransactionModal({ isOpen, onClose,editTransaction=null }) {
   }
 
   function handleDateChange(value) {
-    setDate(value)
-    setErrors((prev) => {
-      if (!touched.date && !prev.date) return prev
-      return { ...prev, date: validateDate(value) }
-    })
-  }
+  const today = todayISODate()
+  const clamped = value > today ? today : value
+  setDate(clamped)
+  setErrors((prev) => {
+    if (!touched.date && !prev.date) return prev
+    return { ...prev, date: validateDate(clamped) }
+  })
+}
 
   function handleDateBlur(e) {
     const value = e.target.value
@@ -431,7 +434,17 @@ export function AddTransactionModal({ isOpen, onClose,editTransaction=null }) {
               onBlur={handleDateBlur}
               error={errors.date}
               type="date"
-              rightAdornment={<IconCalendar />}
+              max={todayISODate()}
+              inputRef={dateInputRef}
+              rightAdornment={
+  <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+    <IconCalendar />
+  </span>
+}
+              onRightAdornmentClick={() => dateInputRef.current?.showPicker()}
             />
 
             <SelectField

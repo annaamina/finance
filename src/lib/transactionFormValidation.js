@@ -21,6 +21,8 @@ export function validateAmount(value) {
 
 export function validateDate(value) {
   if (!value || !String(value).trim()) return 'Date is required'
+  const today = new Date().toISOString().slice(0, 10)
+  if (value > today) return 'Date cannot be in the future'
   return ''
 }
 
