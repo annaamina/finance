@@ -367,7 +367,7 @@ export function AddTransactionModal({ isOpen, onClose, editTransaction=null }) {
         onMouseDown={(e) => { if (e.target === e.currentTarget) setShowConfirm(false) }}
       >
         <div className="delete-modal">
-          <h2 className="delete-modal__title">Save Changes?</h2>
+          <h2 className="delete-modal__title">Save Changes</h2>
           <p className="delete-modal__desc">
             Are you sure you want to save these changes to <strong>"{editTransaction?.name}"</strong>?
           </p>
