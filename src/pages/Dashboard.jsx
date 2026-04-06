@@ -251,7 +251,7 @@ export default function Dashboard({ theme, onThemeChange }) {
       <div className="dashboard">
         <header className={`dash-header ${role === 'admin' ? 'dash-header--admin' : ''}`}>
           <div className="dash-header__titles">
-            <h1 className="dash-header__title">Overview</h1>
+            <h1 className="dash-header__title" >Overview</h1>
             <p className="dash-header__subtitle">Your financial health at a glance.</p>
             <button
               type="button"

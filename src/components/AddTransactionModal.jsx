@@ -18,14 +18,14 @@ const FOCUSABLE_SELECTOR =
   'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
 
 const CATEGORY_OPTIONS = [
-  { value: 'Housing',        label: 'Housing' },
-  { value: 'Food & Dining',  label: 'Food & Dining' },
-  { value: 'Shopping',       label: 'Shopping' },
-  { value: 'Entertainment',  label: 'Entertainment' },
-  { value: 'Utilities',      label: 'Utilities' },
-  { value: 'Transportation', label: 'Transportation' },
-  { value: 'Healthcare',     label: 'Healthcare' },
-  { value: 'Income',         label: 'Income' },
+  { value: 'Housing',label: 'Housing' },
+  { value: 'Food & Dining',label: 'Food & Dining' },
+  { value: 'Shopping',label: 'Shopping' },
+  { value: 'Entertainment',label: 'Entertainment' },
+  { value: 'Utilities',label: 'Utilities' },
+  { value: 'Transportation',label: 'Transportation' },
+  { value: 'Healthcare',label: 'Healthcare' },
+  { value: 'Income',label: 'Income' },
 ]
 
 const ACCOUNT_OPTIONS = [
@@ -33,7 +33,7 @@ const ACCOUNT_OPTIONS = [
   { value: 'Bank', label: 'Bank' },
 ]
 
-function todayISODate() {
+function getTodayDate() {
   const d = new Date()
   const y = d.getFullYear()
   const m = String(d.getMonth() + 1).padStart(2, '0')
@@ -96,7 +96,7 @@ function getFocusableElements(container) {
   return Array.from(container.querySelectorAll(FOCUSABLE_SELECTOR))
 }
 
-export function AddTransactionModal({ isOpen, onClose,editTransaction=null }) {
+export function AddTransactionModal({ isOpen, onClose, editTransaction=null }) {
   const addTransaction = useTransactionStore((state) => state.addTransaction)
   const updateTransaction = useTransactionStore((state) => state.updateTransaction)
   const isEditMode = !!editTransaction
@@ -110,10 +110,10 @@ export function AddTransactionModal({ isOpen, onClose,editTransaction=null }) {
   const [shouldRender, setShouldRender] = useState(false)
   const [animateIn, setAnimateIn] = useState(false)
 
-  const [transactionType, setTransactionType] = useState('income')
+  const [txType, settxType] = useState('income')
   const [name, setName] = useState('')
   const [amount, setAmount] = useState('')
-  const [date, setDate] = useState(todayISODate)
+  const [date, setDate] = useState(getTodayDate)
   const [category, setCategory] = useState('')
   const [account, setAccount] = useState('')
   const [showConfirm, setShowConfirm] = useState(false)
@@ -149,22 +149,22 @@ export function AddTransactionModal({ isOpen, onClose,editTransaction=null }) {
   }, [shouldRender])
 
   useEffect(() => {
-  if (isOpen) {
-    returnFocusRef.current = document.activeElement
-    if (isEditMode) {
-      setTransactionType(editTransaction.type)
-      setName(editTransaction.name)
-      setAmount(String(editTransaction.amount))
-      setDate(editTransaction.date)
-      setCategory(editTransaction.category)
-      setAccount(editTransaction.account)
+    if (isOpen) {
+      returnFocusRef.current = document.activeElement
+      if (isEditMode) {
+        settxType(editTransaction.type)
+        setName(editTransaction.name)
+        setAmount(String(editTransaction.amount))
+        setDate(editTransaction.date)
+        setCategory(editTransaction.category)
+        setAccount(editTransaction.account)
     } else {
-      setTransactionType('income')
-      setName('')
-      setAmount('')
-      setDate(todayISODate())
-      setCategory('')
-      setAccount('')
+        settxType('income')
+        setName('')
+        setAmount('')
+        setDate(getTodayDate())
+        setCategory('')
+        setAccount('')
     }
     setErrors({})
     setTouched({ name: false, amount: false, date: false, category: false, account: false })
@@ -254,14 +254,14 @@ export function AddTransactionModal({ isOpen, onClose,editTransaction=null }) {
   }
 
   function handleDateChange(value) {
-  const today = todayISODate()
-  const clamped = value > today ? today : value
-  setDate(clamped)
-  setErrors((prev) => {
-    if (!touched.date && !prev.date) return prev
-    return { ...prev, date: validateDate(clamped) }
-  })
-}
+    const today = getTodayDate()
+    const clamped = value > today ? today : value
+    setDate(clamped)
+    setErrors((prev) => {
+      if (!touched.date && !prev.date) return prev
+      return { ...prev, date: validateDate(clamped) }
+    })
+  }
 
   function handleDateBlur(e) {
     const value = e.target.value
@@ -297,33 +297,33 @@ export function AddTransactionModal({ isOpen, onClose,editTransaction=null }) {
     setErrors((prev) => ({ ...prev, account: validateAccount(value) }))
   }
 
-    function handleSubmit(e) {
+  function handleSubmit(e) {
     e.preventDefault()
     setTouched({
-    name: true,
-    amount: true,
-    date: true,
-    category: true,
-    account: true,
-  })
-  const nextErrors = {
-    name: validateName(name),
-    amount: validateAmount(amount),
-    date: validateDate(date),
-    category: validateCategory(category),
-    account: validateAccount(account),
+      name: true,
+      amount: true,
+      date: true,
+      category: true,
+      account: true,
+    })
+    const nextErrors = {
+      name: validateName(name),
+      amount: validateAmount(amount),
+      date: validateDate(date),
+      category: validateCategory(category),
+      account: validateAccount(account),
   }
-  setErrors(nextErrors)
-  if (Object.values(nextErrors).some(Boolean)) return
+    setErrors(nextErrors)
+    if (Object.values(nextErrors).some(Boolean)) return
 
     const parsedAmount = parseAmount(amount)
     if (parsedAmount == null) return
-  // For edit mode, show confirm popup instead of saving immediately
-      if (isEditMode) {
-    setShowConfirm(true)
-  } else {
+
+    if (isEditMode) {
+      setShowConfirm(true)
+    } else {
     addTransaction({
-      type: transactionType,
+      type: txType,
       name: name.trim(),
       amount: parsedAmount,
       date,
@@ -334,25 +334,23 @@ export function AddTransactionModal({ isOpen, onClose,editTransaction=null }) {
   }
 }
 
-function handleConfirmSave() {
-  const parsedAmount = parseAmount(amount)
-  if (parsedAmount == null) return
-  updateTransaction({
-    id: editTransaction.id,
-    type: transactionType,
-    name: name.trim(),
-    amount: parsedAmount,
-    date,
-    category,
-    account,
-  })
-  setShowConfirm(false)
-  onClose()
-}
+  function handleConfirmSave() {
+    const parsedAmount = parseAmount(amount)
+    if (parsedAmount == null) return
+    updateTransaction({
+      id: editTransaction.id,
+      type: txType,
+      name: name.trim(),
+      amount: parsedAmount,
+      date,
+      category,
+      account,
+    })
+    setShowConfirm(false)
+    onClose()
+  }
 
-if (!shouldRender && !showConfirm) return null
-
-if (!shouldRender && !showConfirm) return null
+  if (!shouldRender && !showConfirm) return null
 
   if (showConfirm) {
     return createPortal(
@@ -388,7 +386,7 @@ if (!shouldRender && !showConfirm) return null
   }
 
   const modalClass =
-    transactionType === 'expense'
+    txType === 'expense'
       ? 'add-tx-modal add-tx-modal--expense'
       : 'add-tx-modal add-tx-modal--income'
 
@@ -427,10 +425,10 @@ if (!shouldRender && !showConfirm) return null
               <button
                 type="button"
                 className={`add-tx-type-toggle__btn add-tx-type-toggle__btn--income ${
-                  transactionType === 'income' ? 'add-tx-type-toggle__btn--active' : ''
+                  txType === 'income' ? 'add-tx-type-toggle__btn--active' : ''
                 }`}
-                onClick={() => setTransactionType('income')}
-                aria-pressed={transactionType === 'income'}
+                onClick={() => settxType('income')}
+                aria-pressed={txType === 'income'}
               >
                 <IconArrowUpSmall />
                 Income
@@ -438,10 +436,10 @@ if (!shouldRender && !showConfirm) return null
               <button
                 type="button"
                 className={`add-tx-type-toggle__btn add-tx-type-toggle__btn--expense ${
-                  transactionType === 'expense' ? 'add-tx-type-toggle__btn--active' : ''
+                  txType === 'expense' ? 'add-tx-type-toggle__btn--active' : ''
                 }`}
-                onClick={() => setTransactionType('expense')}
-                aria-pressed={transactionType === 'expense'}
+                onClick={() => settxType('expense')}
+                aria-pressed={txType === 'expense'}
               >
                 <IconArrowDownSmall />
                 Expense
@@ -481,7 +479,7 @@ if (!shouldRender && !showConfirm) return null
               onBlur={handleDateBlur}
               error={errors.date}
               type="date"
-              max={todayISODate()}
+              max={getTodayDate()}
               inputRef={dateInputRef}
               rightAdornment={<IconCalendar />}
               onRightAdornmentClick={() => dateInputRef.current?.showPicker()}
@@ -517,7 +515,7 @@ if (!shouldRender && !showConfirm) return null
                 <button
                   type="submit"
                   className={`add-tx-modal__submit ${
-                    transactionType === 'income'
+                    txType === 'income'
                       ? 'add-tx-modal__submit--income'
                       : 'add-tx-modal__submit--expense'
                   }`}
@@ -530,13 +528,13 @@ if (!shouldRender && !showConfirm) return null
               <button
                 type="submit"
                 className={`add-tx-modal__submit ${
-                  transactionType === 'income'
+                  txType === 'income'
                     ? 'add-tx-modal__submit--income'
                     : 'add-tx-modal__submit--expense'
                 }`}
                 disabled={!formValid}
               >
-                {transactionType === 'income' ? 'Add Income' : 'Add Expense'}
+                {txType === 'income' ? 'Add Income' : 'Add Expense'}
               </button>
             )}
           </form>
